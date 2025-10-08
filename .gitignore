@@ -1,5 +1,6 @@
 .project
 *.xpi
+.vscode-upload.json
 
 .DS_Store
 .AppleDouble

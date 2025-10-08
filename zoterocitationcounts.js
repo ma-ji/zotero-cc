@@ -59,6 +59,16 @@ ZoteroCitationCounts = {
         },
       },
       {
+        key: "openalex",
+        name: "OpenAlex",
+        useDoi: true,
+        useArxiv: true,
+        methods: {
+          urlBuilder: this._openAlexUrl,
+          responseCallback: this._openAlexCallback,
+        },
+      },
+      {
         key: "semanticscholar",
         name: "Semantic Scholar",
         useDoi: true,
@@ -525,6 +535,24 @@ ZoteroCitationCounts = {
   /////////////////////////////////////////////
   //            API specific stuff           //
   ////////////////////////////////////////////
+
+  _openAlexUrl: function (id, type) {
+    const decodedId = decodeURIComponent(id);
+
+    if (type === "doi") {
+      return `https://api.openalex.org/works/https://doi.org/${decodedId}`;
+    }
+
+    if (type === "arxiv") {
+      return `https://api.openalex.org/works/arXiv:${decodedId}`;
+    }
+
+    throw new Error("citationcounts-internal-error");
+  },
+
+  _openAlexCallback: function (response) {
+    return response["cited_by_count"];
+  },
 
   _crossrefUrl: function (id, type) {
     return `https://api.crossref.org/works/${id}/transform/application/vnd.citationstyles.csl+json`;

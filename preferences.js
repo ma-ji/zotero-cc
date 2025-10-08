@@ -12,6 +12,10 @@ ZoteroCitationCounts_Prefs = {
       name: "INSPIRE-HEP",
     },
     {
+      key: "openalex",
+      name: "OpenAlex",
+    },
+    {
       key: "semanticscholar",
       name: "Semantic Scholar",
     },
