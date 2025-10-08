@@ -62,7 +62,7 @@ ZoteroCitationCounts = {
         key: "openalex",
         name: "OpenAlex",
         useDoi: true,
-        useArxiv: true,
+        useArxiv: false,
         methods: {
           urlBuilder: this._openAlexUrl,
           responseCallback: this._openAlexCallback,
@@ -567,17 +567,21 @@ ZoteroCitationCounts = {
   ////////////////////////////////////////////
 
   _openAlexUrl: function (id, type) {
+    if (type !== "doi") {
+      throw new Error("citationcounts-internal-error");
+    }
+
     const decodedId = decodeURIComponent(id);
+    const normalizedDoi = decodedId
+      .replace(/^https?:\/\/(dx\.)?doi\.org\//i, "")
+      .replace(/^doi:/i, "")
+      .trim();
 
-    if (type === "doi") {
-      return `https://api.openalex.org/works/https://doi.org/${decodedId}`;
+    if (!normalizedDoi) {
+      throw new Error("citationcounts-internal-error");
     }
 
-    if (type === "arxiv") {
-      return `https://api.openalex.org/works/arXiv:${decodedId}`;
-    }
-
-    throw new Error("citationcounts-internal-error");
+    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count`;
   },
 
   _openAlexCallback: function (response) {
