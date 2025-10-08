@@ -5,7 +5,22 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 INPUT_VERSION="${1:-${VERSION:-}}"
-MANIFEST_VERSION="$(grep -E '\"version\"' manifest.json | head -n1 | sed 's/.*\"version\": *\"\\([^\"]*\\)\".*/\\1/')"
+
+if command -v python3 >/dev/null 2>&1; then
+  MANIFEST_VERSION="$(python3 - <<'PY'
+import json
+with open("manifest.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+version = str(data.get("version", "")).strip()
+print(version)
+PY
+)"
+else
+  MANIFEST_VERSION="$(grep -E '"version"' manifest.json | head -n1 | sed 's/.*"version": *"\([^"]*\)".*/\1/')"
+fi
+
+INPUT_VERSION="$(printf '%s' "${INPUT_VERSION}" | tr -d '[:space:]')"
+MANIFEST_VERSION="$(printf '%s' "${MANIFEST_VERSION}" | tr -d '[:space:]')"
 
 if [ -z "${MANIFEST_VERSION}" ]; then
   echo "Error: Unable to determine version from manifest.json" >&2
@@ -13,8 +28,11 @@ if [ -z "${MANIFEST_VERSION}" ]; then
 fi
 
 if [ -n "${INPUT_VERSION}" ]; then
-  STRIPPED_VERSION="${INPUT_VERSION#v}"
-  VERSION="${STRIPPED_VERSION}"
+  if [ "${INPUT_VERSION#v}" != "${INPUT_VERSION}" ]; then
+    VERSION="${INPUT_VERSION#v}"
+  else
+    VERSION="${INPUT_VERSION}"
+  fi
 else
   VERSION="${MANIFEST_VERSION}"
 fi
