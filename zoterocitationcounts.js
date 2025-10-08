@@ -378,9 +378,35 @@ ZoteroCitationCounts = {
       pwItem.setProgress(100);
     } catch (error) {
       pwItem.setError();
+
+      let messageKey =
+        typeof error?.message === "string" && error.message.startsWith("citationcounts-")
+          ? error.message
+          : "citationcounts-internal-error";
+
+      let localizedMessage = null;
+      try {
+        localizedMessage = await this.l10n.formatValue(messageKey, {
+          api: api.name,
+        });
+      } catch (formatError) {
+        this._log(`Localization formatting failed: ${formatError}`);
+      }
+
+      const fallbackMessage =
+        typeof error?.message === "string" && error.message && !error.message.startsWith("citationcounts-")
+          ? error.message
+          : await this.l10n.formatValue("citationcounts-internal-error", {
+              api: api.name,
+            });
+
+      const messageToShow = localizedMessage || fallbackMessage || "Unknown error";
+
+      this._log(`Citation count retrieval error: ${error?.stack || error}`);
+
       new progressWindow.ItemProgress(
         this.icon("bullet_yellow"),
-        await this.l10n.formatValue(error.message, { api: api.name }),
+        messageToShow,
         pwItem
       );
     }
