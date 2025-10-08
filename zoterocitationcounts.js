@@ -581,7 +581,7 @@ ZoteroCitationCounts = {
       throw new Error("citationcounts-internal-error");
     }
 
-    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count`;
+    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count&mailto:magic.maji@gmail.com`;
   },
 
   _openAlexCallback: function (response) {
