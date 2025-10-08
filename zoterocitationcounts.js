@@ -374,7 +374,11 @@ ZoteroCitationCounts = {
 
       this._setCitationCount(item, source, count);
 
-      pwItem.setIcon(this.icon("tick"));
+      try {
+        pwItem.setIcon(this.icon("tick"));
+      } catch (iconError) {
+        this._log(`Progress icon could not be set: ${iconError}`);
+      }
       pwItem.setProgress(100);
     } catch (error) {
       pwItem.setError();
