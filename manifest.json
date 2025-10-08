@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": "2.1.0",
   "name": "Zotero Citation Counts Manager",
   "version": "2.1.0",
   "description": "Enhanced Citation Counts Manager for Zotero 7",
