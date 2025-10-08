@@ -34,6 +34,22 @@ Boilerplate for this plugin was based on Zotero's sample plugin for v7 [Make-It-
 - Choose the file `zoterocitationcountsmanager-2.0.0.xpi`
 - Restart Zotero
 
+## Release Process
+
+1. Update `manifest.json` (and any other references) with the new version number.
+2. Commit and push your changes to the default branch.
+3. Create a tag matching the manifest version, e.g. `v2.1.0`, and push the tag:
+
+   ```
+   git tag v2.1.0
+   git push origin v2.1.0
+   ```
+
+4. GitHub Actions will build the `.xpi` package and create a release automatically, attaching the generated artifact.
+5. Download the `.xpi` from the release page for distribution or verification.
+
+If you need to re-run the automation, you can use the **Run workflow** button on the Actions tab (`workflow_dispatch`) and specify the desired tag.
+
 ## License
 
 Distributed under the Mozilla Public License (MPL) Version 2.0.

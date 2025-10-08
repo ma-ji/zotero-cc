@@ -1,6 +1,7 @@
 .project
 *.xpi
 .vscode-upload.json
+memory-bank/
 
 .DS_Store
 .AppleDouble

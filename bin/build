@@ -1,14 +1,48 @@
 #!/bin/sh
+set -euo pipefail
 
-cd ..
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR"
 
-version='2.0'
+INPUT_VERSION="${1:-${VERSION:-}}"
+MANIFEST_VERSION="$(grep -E '\"version\"' manifest.json | head -n1 | sed 's/.*\"version\": *\"\\([^\"]*\\)\".*/\\1/')"
 
-rm -f zoterocitationcountsmanager-${version}.xpi
-zip -r zoterocitationcountsmanager-${version}.xpi locale/* manifest.json bootstrap.js preferences.js preferences.xhtml prefs.js zoterocitationcounts.js
+if [ -z "${MANIFEST_VERSION}" ]; then
+  echo "Error: Unable to determine version from manifest.json" >&2
+  exit 1
+fi
 
-# To release a new version:
-# - increase version number in all files (not just here)
-# - run this script to create a new .xpi file
-# - commit and push to Github
-# - make a release on Github, and manually upload the new .xpi file
+if [ -n "${INPUT_VERSION}" ]; then
+  STRIPPED_VERSION="${INPUT_VERSION#v}"
+  VERSION="${STRIPPED_VERSION}"
+else
+  VERSION="${MANIFEST_VERSION}"
+fi
+
+if [ "${VERSION}" != "${MANIFEST_VERSION}" ]; then
+  echo "Error: Provided version (${VERSION}) does not match manifest.json version (${MANIFEST_VERSION})." >&2
+  echo "Update manifest.json before creating a release, or call this script with the matching version." >&2
+  exit 1
+fi
+
+if ! command -v zip >/dev/null 2>&1; then
+  echo "Error: 'zip' command not found. Install zip before building the package." >&2
+  exit 1
+fi
+
+DIST_DIR="dist"
+ARTIFACT_NAME="zoterocitationcountsmanager-${VERSION}.xpi"
+
+mkdir -p "${DIST_DIR}"
+rm -f "${DIST_DIR}/${ARTIFACT_NAME}"
+
+zip -r "${DIST_DIR}/${ARTIFACT_NAME}" \
+  locale/* \
+  manifest.json \
+  bootstrap.js \
+  preferences.js \
+  preferences.xhtml \
+  prefs.js \
+  zoterocitationcounts.js >/dev/null
+
+echo "Created ${DIST_DIR}/${ARTIFACT_NAME}"
