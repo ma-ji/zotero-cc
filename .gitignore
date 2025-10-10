@@ -2,6 +2,7 @@
 *.xpi
 .vscode-upload.json
 memory-bank/
+dist/
 
 .DS_Store
 .AppleDouble
