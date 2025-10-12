@@ -584,8 +584,13 @@ ZoteroCitationCounts = {
     return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count&mailto:magic.maji@gmail.com`;
   },
 
-  _openAlexCallback: function (response) {
-    return response["cited_by_count"];
+  // The callback can be async if we want.
+  _openAlexCallback: async function (response) {
+    count = response["cited_by_count"];
+
+    // throttle OpenAlex so we don't reach rate limit during batch operations.
+    await new Promise((r) => setTimeout(r, 1000));
+    return count;
   },
 
   _crossrefUrl: function (id, type) {
