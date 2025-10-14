@@ -439,8 +439,10 @@ ZoteroCitationCounts = {
    * Ref: https://www.zotero.org/support/kb/item_types_and_fields#citing_fields_from_extra
    */
   _setCitationCount: function (item, source, count, fwci = null) {
-    const pattern = /^Citations \(${source}\):|^\d+ citations \(${source}\)/i;
-    const fwciPattern = /^FWCI \(${source}\):|^FWCI: \d+\.\d+ \(${source}\)/i;
+    // Escape special regex characters in source
+    const escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`^Citations \\(${escapedSource}\\):|^\\d+ citations \\(${escapedSource}\\)`, 'i');
+    const fwciPattern = new RegExp(`^FWCI \\(${escapedSource}\\):|^FWCI: \\d+\\.\\d+ \\(${escapedSource}\\)`, 'i');
     const extraFieldLines = (item.getField("extra") || "")
       .split("\n")
       .filter((line) => !pattern.test(line) && !fwciPattern.test(line));
@@ -688,6 +690,10 @@ ZoteroCitationCounts = {
     }
 
     const citationCount = parseInt(coredata["citedby-count"]);
+    if (isNaN(citationCount)) {
+      throw new Error("citationcounts-progresswindow-error-no-citation-count");
+    }
+
     const fwci = coredata["fwci"] ? parseFloat(coredata["fwci"]) : null;
 
     return {
