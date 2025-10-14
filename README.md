@@ -3,7 +3,7 @@
 - [GitHub](https://github.com/FrLars21/ZoteroCitationCountsManager): Source
   code repository
 
-This is an add-on for [Zotero](https://www.zotero.org), a research source management tool. The add-on can auto-fetch citation counts for journal articles using various APIs, including [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), and [Semantic Scholar](https://www.semanticscholar.org). [Google Scholar](https://scholar.google.com) is not supported because automated access is against its terms of service.
+This is an add-on for [Zotero](https://www.zotero.org), a research source management tool. The add-on can auto-fetch citation counts for journal articles using various APIs, including [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), [Semantic Scholar](https://www.semanticscholar.org), and [Scopus](https://www.scopus.com). [Google Scholar](https://scholar.google.com) is not supported because automated access is against its terms of service.
 
 Please report any bugs, questions, or feature requests in the Github repository.
 
@@ -11,7 +11,8 @@ Please report any bugs, questions, or feature requests in the Github repository.
 
 - Autoretrieve citation counts when a new item is added to your Zotero library.
 - Retrieve citation counts manually by right-clicking on one or more items in your Zotero library.
-- Works with the following APIs: [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), and [Semantic Scholar](https://www.semanticscholar.org).
+- Works with the following APIs: [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), [Semantic Scholar](https://www.semanticscholar.org), and [Scopus](https://www.scopus.com).
+- **Scopus support** includes citation counts and FWCI (Field-Weighted Citation Impact) metrics when available.
 - _NEW:_ The plugin is compatible with **Zotero 7** (Zotero 6 is **NOT** supported!).
 - _NEW:_ The plugin registers a custom column ("Citation Counts") in your Zotero library so that items can be **ordered by citation count**.
 - _NEW:_ Improved _citation count retrieval operation_ status reporting, including item-specific error messages for those items where a citation count couldn't be retrieved.
@@ -33,6 +34,20 @@ Boilerplate for this plugin was based on Zotero's sample plugin for v7 [Make-It-
 - `Install Add-on From File`
 - Choose the file `zoterocitationcountsmanager-2.0.0.xpi`
 - Restart Zotero
+
+## Configuration
+
+### Scopus API Key
+
+To use the Scopus API, you need to configure your API key:
+
+1. Obtain an API key from [Elsevier Developer Portal](https://dev.elsevier.com/)
+2. In Zotero, go to `Tools -> Add-ons`
+3. Click on the gear icon next to "Zotero Citation Counts Manager"
+4. Select "Preferences"
+5. Enter your Scopus API key in the "Scopus API Key" field
+
+When using Scopus, the plugin will retrieve both citation counts and FWCI (Field-Weighted Citation Impact) metrics when available. Both values are stored in the item's "Extra" field.
 
 ## Release Process
 
