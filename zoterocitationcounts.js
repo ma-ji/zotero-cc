@@ -78,6 +78,16 @@ ZoteroCitationCounts = {
           responseCallback: this._semanticScholarCallback,
         },
       },
+      {
+        key: "scopus",
+        name: "Scopus",
+        useDoi: true,
+        useArxiv: false,
+        methods: {
+          urlBuilder: this._scopusUrl,
+          responseCallback: this._scopusCallback,
+        },
+      },
     ];
 
     this._initialized = true;
@@ -363,7 +373,7 @@ ZoteroCitationCounts = {
     const pwItem = progressWindowItems[currentItemIndex];
 
     try {
-      const [count, source] = await this._retrieveCitationCount(
+      const [count, source, fwci] = await this._retrieveCitationCount(
         item,
         api.name,
         api.useDoi,
@@ -372,7 +382,7 @@ ZoteroCitationCounts = {
         api.methods.responseCallback
       );
 
-      this._setCitationCount(item, source, count);
+      this._setCitationCount(item, source, count, fwci);
 
       try {
         pwItem.setIcon(this.icon("tick"));
@@ -428,14 +438,20 @@ ZoteroCitationCounts = {
    * Insert the retrieve citation count into the Items "extra" field.
    * Ref: https://www.zotero.org/support/kb/item_types_and_fields#citing_fields_from_extra
    */
-  _setCitationCount: function (item, source, count) {
+  _setCitationCount: function (item, source, count, fwci = null) {
     const pattern = /^Citations \(${source}\):|^\d+ citations \(${source}\)/i;
+    const fwciPattern = /^FWCI \(${source}\):|^FWCI: \d+\.\d+ \(${source}\)/i;
     const extraFieldLines = (item.getField("extra") || "")
       .split("\n")
-      .filter((line) => !pattern.test(line));
+      .filter((line) => !pattern.test(line) && !fwciPattern.test(line));
 
     const today = new Date().toISOString().split("T")[0];
     extraFieldLines.unshift(`${count} citations (${source}) [${today}]`);
+    
+    // Add FWCI if available
+    if (fwci !== null && !isNaN(fwci)) {
+      extraFieldLines.unshift(`FWCI: ${fwci.toFixed(2)} (${source}) [${today}]`);
+    }
 
     item.setField("extra", extraFieldLines.join("\n"));
     item.saveTx();
@@ -471,7 +487,7 @@ ZoteroCitationCounts = {
   },
 
   /**
-   * Send a request to a specified url, handle response with specified callback, and return a validated integer.
+   * Send a request to a specified url, handle response with specified callback, and return a validated integer or object.
    */
   _sendRequest: async function (url, callback) {
     const response = await fetch(url)
@@ -481,14 +497,22 @@ ZoteroCitationCounts = {
       });
 
     try {
-      const count = parseInt(await callback(response));
-
-      if (!(Number.isInteger(count) && count >= 0)) {
-        // throw generic error since catch bloc will convert it.
-        throw new Error();
+      const result = await callback(response);
+      
+      // Handle both number and object returns
+      if (typeof result === 'object' && result !== null) {
+        const count = parseInt(result.count);
+        if (!(Number.isInteger(count) && count >= 0)) {
+          throw new Error();
+        }
+        return result; // Return the full object with count and potentially fwci
+      } else {
+        const count = parseInt(result);
+        if (!(Number.isInteger(count) && count >= 0)) {
+          throw new Error();
+        }
+        return count;
       }
-
-      return count;
     } catch (error) {
       throw new Error("citationcounts-progresswindow-error-no-citation-count");
     }
@@ -510,12 +534,17 @@ ZoteroCitationCounts = {
       try {
         doiField = this._getDoi(item);
 
-        const count = await this._sendRequest(
+        const result = await this._sendRequest(
           urlFunction(doiField, "doi"),
           requestCallback
         );
 
-        return [count, `${apiName}/DOI`];
+        // Handle both number and object results
+        if (typeof result === 'object' && result !== null) {
+          return [result.count, `${apiName}/DOI`, result.fwci];
+        } else {
+          return [result, `${apiName}/DOI`, null];
+        }
       } catch (error) {
         errorMessage = error.message;
       }
@@ -534,12 +563,17 @@ ZoteroCitationCounts = {
       try {
         arxivField = this._getArxiv(item);
 
-        const count = await this._sendRequest(
+        const result = await this._sendRequest(
           urlFunction(arxivField, "arxiv"),
           requestCallback
         );
 
-        return [count, `${apiName}/arXiv`];
+        // Handle both number and object results
+        if (typeof result === 'object' && result !== null) {
+          return [result.count, `${apiName}/arXiv`, result.fwci];
+        } else {
+          return [result, `${apiName}/arXiv`, null];
+        }
       } catch (error) {
         errorMessage = error.message;
       }
@@ -621,5 +655,44 @@ ZoteroCitationCounts = {
     // throttle Semantic Scholar so we don't reach limit.
     await new Promise((r) => setTimeout(r, 3000));
     return count;
+  },
+
+  _scopusUrl: function (id, type) {
+    if (type !== "doi") {
+      throw new Error("citationcounts-internal-error");
+    }
+
+    const apiKey = this.getPref("scopusApiKey");
+    if (!apiKey) {
+      throw new Error("citationcounts-progresswindow-error-no-scopus-api-key");
+    }
+
+    const decodedId = decodeURIComponent(id);
+    const normalizedDoi = decodedId
+      .replace(/^https?:\/\/(dx\.)?doi\.org\//i, "")
+      .replace(/^doi:/i, "")
+      .trim();
+
+    if (!normalizedDoi) {
+      throw new Error("citationcounts-internal-error");
+    }
+
+    return `https://api.elsevier.com/content/abstract/doi/${encodeURIComponent(normalizedDoi)}?apiKey=${apiKey}&httpAccept=application/json`;
+  },
+
+  _scopusCallback: function (response) {
+    // Extract citation count and FWCI from Scopus response
+    const coredata = response["abstracts-retrieval-response"]?.["coredata"];
+    if (!coredata) {
+      throw new Error("citationcounts-progresswindow-error-no-citation-count");
+    }
+
+    const citationCount = parseInt(coredata["citedby-count"]);
+    const fwci = coredata["fwci"] ? parseFloat(coredata["fwci"]) : null;
+
+    return {
+      count: citationCount,
+      fwci: fwci
+    };
   },
 };

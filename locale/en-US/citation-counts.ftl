@@ -15,6 +15,7 @@ citationcounts-progresswindow-error-no-arxiv = No arXiv id found on the item.
 citationcounts-progresswindow-error-no-doi-or-arxiv = No DOI / arXiv ID found on the item.
 citationcounts-progresswindow-error-bad-api-response = Problem accesing the { $api } API.
 citationcounts-progresswindow-error-no-citation-count = { $api } doesn't have a citation count for this item.
+citationcounts-progresswindow-error-no-scopus-api-key = Scopus API key not configured. Please set it in preferences.
 
 ## For the "Tools" menu, where the "autoretrieve" preference can be set.
 citationcounts-menutools-autoretrieve-title =
@@ -31,6 +32,7 @@ citationcounts-preferences-pane-autoretrieve-api =
     .label = { $api }
 citationcounts-preferences-pane-autoretrieve-api-none =
     .label = No
+citationcounts-preferences-pane-scopus-api-key-title = Scopus API Key
 
 ## Misc
 citationcounts-internal-error = Internal error
