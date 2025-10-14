@@ -553,7 +553,7 @@ ZoteroCitationCounts = {
 
       // if arxiv is not used, throw errors picked up along the way now.
       if (!useArxiv) {
-        throw new Error(errorMessage);
+        throw new Error(errorMessage || "citationcounts-internal-error");
       }
     }
 
@@ -587,11 +587,11 @@ ZoteroCitationCounts = {
 
       // show proper error from unsuccessfull doi operation
       if (useDoi && !arxivField && doiErrorMessage) {
-        throw new Error(doiErrorMessage);
+        throw new Error(doiErrorMessage || "citationcounts-internal-error");
       }
 
       // throw the last error incurred.
-      throw new Error(errorMessage);
+      throw new Error(errorMessage || "citationcounts-internal-error");
     }
 
     //if none is used, it is an internal error.
