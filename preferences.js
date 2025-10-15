@@ -19,6 +19,10 @@ ZoteroCitationCounts_Prefs = {
       key: "semanticscholar",
       name: "Semantic Scholar",
     },
+    {
+      key: "scopus",
+      name: "Scopus",
+    },
   ],
 
   init: function () {

@@ -25,6 +25,13 @@ async function startup({ id, version, rootURI }) {
     dataProvider: (item) => ZoteroCitationCounts.getCitationCount(item),
   });
 
+  await Zotero.ItemTreeManager.registerColumns({
+    dataKey: "fwci",
+    label: "FWCI",
+    pluginID: id,
+    dataProvider: (item) => ZoteroCitationCounts.getFWCI(item),
+  });
+
   itemObserver = Zotero.Notifier.registerObserver(
     {
       notify: function (event, type, ids, extraData) {

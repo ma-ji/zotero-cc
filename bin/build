@@ -49,7 +49,7 @@ if ! command -v zip >/dev/null 2>&1; then
 fi
 
 DIST_DIR="dist"
-ARTIFACT_NAME="zoterocitationcountsmanager-${VERSION}.xpi"
+ARTIFACT_NAME="zotero-cc-${VERSION}.xpi"
 
 mkdir -p "${DIST_DIR}"
 rm -f "${DIST_DIR}/${ARTIFACT_NAME}"
