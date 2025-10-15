@@ -1,29 +1,26 @@
-# Zotero 7 Citation Counts Manager Enhaned
+# Zotero 7 Citation Counts
 
-- [GitHub](https://github.com/FrLars21/ZoteroCitationCountsManager): Source
-  code repository
+## Data Sources and Capabilities
 
-This is an add-on for [Zotero](https://www.zotero.org), a research source management tool. The add-on can auto-fetch citation counts for journal articles using various APIs, including [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), [Semantic Scholar](https://www.semanticscholar.org), and [Scopus](https://www.scopus.com). [Google Scholar](https://scholar.google.com) is not supported because automated access is against its terms of service.
+The following table summarizes the data sources supported by the plugin, including which identifiers they can use for retrieval and what metrics they provide:
 
-Please report any bugs, questions, or feature requests in the Github repository.
+| Source | Input Identifiers | Output Metrics | Notes |
+|--------|-------------------|----------------|-------|
+| **[OpenAlex](https://openalex.org)** | DOI | Citation Count, FWCI | **Recommended default** - Open catalog of global research |
+| [Crossref](https://www.crossref.org) | DOI | Citation Count | Primary DOI resolution service |
+| [INSPIRE-HEP](https://inspirehep.net) | DOI, arXiv | Citation Count | High-energy physics literature |
+| [Semantic Scholar](https://www.semanticscholar.org) | DOI, arXiv | Citation Count | AI-powered research discovery |
+| [Scopus](https://www.scopus.com) | DOI | Citation Count | Requires Elsevier API key |
+
+This is an add-on for [Zotero](https://www.zotero.org), a research source management tool. The add-on can auto-fetch citation counts for journal articles using various APIs, including [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), [Semantic Scholar](https://www.semanticscholar.org), and [Scopus](https://www.scopus.com). [Google Scholar](https://scholar.google.com) is planned to be supported in future releases.
 
 ## Features
 
+- The plugin registers custom columns ("Citation Counts" and "FWCI") in your Zotero library so that items can be **ordered by citation count**. This is especially useful to prioritize a long reading list, and a major reason I'm still using it and maintain it.
 - Autoretrieve citation counts when a new item is added to your Zotero library.
 - Retrieve citation counts manually by right-clicking on one or more items in your Zotero library.
-- Works with the following APIs: [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), [Semantic Scholar](https://www.semanticscholar.org), and [Scopus](https://www.scopus.com).
-- **Scopus support** includes citation counts and FWCI (Field-Weighted Citation Impact) metrics when available.
-- _NEW:_ The plugin is compatible with **Zotero 7** (Zotero 6 is **NOT** supported!).
-- _NEW:_ The plugin registers a custom column ("Citation Counts") in your Zotero library so that items can be **ordered by citation count**.
-- _NEW:_ Improved _citation count retrieval operation_ status reporting, including item-specific error messages for those items where a citation count couldn't be retrieved.
-- _NEW:_ Concurrent citation count retrieval operations is now possible. Especially important for the autoretrieve feature.
-- _NEW:_ Fluent is used for localizing, while the locale file has been simplified and now cover the whole plugin. You are welcome to submit translations as a PR.
-- _NEW:_ The whole codebade has been refactored with a focus on easy maintenance, especially for the supported citation count APIs.
-
-## Acknowledgements
-
-This plugin is a refactored and enhanced version of Erik Schnetter's [Zotero Citations Counts Manager](https://github.com/eschnett/zotero-citationcounts) for Zotero 7. Code for that extension was based on [Zotero DOI Manager](https://github.com/bwiernik/zotero-shortdoi), which is based in part on [Zotero Google Scholar Citations](https://github.com/beloglazov/zotero-scholar-citations) by Anton Beloglazov.
-Boilerplate for this plugin was based on Zotero's sample plugin for v7 [Make-It-Red](https://github.com/zotero/make-it-red).
+- The plugin is compatible with **Zotero 7** (Zotero 6 is **NOT** supported!).
+- Fluent is used for localizing, while the locale file has been simplified and now cover the whole plugin. You are welcome to submit translations as a PR.
 
 ## Installing
 
@@ -32,7 +29,7 @@ Boilerplate for this plugin was based on Zotero's sample plugin for v7 [Make-It-
 - Run Zotero (version 7.x)
 - Go to `Tools -> Add-ons`
 - `Install Add-on From File`
-- Choose the file `zoterocitationcountsmanager-2.0.0.xpi`
+- Choose the file `zotero-cc-xxx.xpi`
 - Restart Zotero
 
 ## Configuration
@@ -47,23 +44,13 @@ To use the Scopus API, you need to configure your API key:
 4. Select "Preferences"
 5. Enter your Scopus API key in the "Scopus API Key" field
 
-When using Scopus, the plugin will retrieve both citation counts and FWCI (Field-Weighted Citation Impact) metrics when available. Both values are stored in the item's "Extra" field.
+When using Scopus, the plugin will retrieve citation counts. Values are stored in the item's "Extra" field.
 
-## Release Process
+## Acknowledgements
 
-1. Update `manifest.json` (and any other references) with the new version number.
-2. Commit and push your changes to the default branch.
-3. Create a tag matching the manifest version, e.g. `v2.1.0`, and push the tag:
+This plugin is truly a community product. It is a refactored and enhanced version of [FrLars21/ZoteroCitationCountsManager](https://github.com/FrLars21/ZoteroCitationCountsManager) (as you can tell from the folk), which was built based on Erik Schnetter's [Zotero Citations Counts Manager](https://github.com/eschnett/zotero-citationcounts) for Zotero 7. Code for that extension was based on [Zotero DOI Manager](https://github.com/bwiernik/zotero-shortdoi), which is based in part on [Zotero Google Scholar Citations](https://github.com/beloglazov/zotero-scholar-citations) by Anton Beloglazov.
 
-   ```
-   git tag v2.1.0
-   git push origin v2.1.0
-   ```
-
-4. GitHub Actions will build the `.xpi` package and create a release automatically, attaching the generated artifact.
-5. Download the `.xpi` from the release page for distribution or verification.
-
-If you need to re-run the automation, you can use the **Run workflow** button on the Actions tab (`workflow_dispatch`) and specify the desired tag.
+Boilerplate for this plugin was based on Zotero's sample plugin for v7 [Make-It-Red](https://github.com/zotero/make-it-red).
 
 ## License
 

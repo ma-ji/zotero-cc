@@ -39,13 +39,23 @@ ZoteroCitationCounts = {
      */
     this.APIs = [
       {
+        key: "openalex",
+        name: "OpenAlex",
+        useDoi: true,
+        useArxiv: false,
+        methods: {
+          urlBuilder: this._openAlexUrl.bind(this),
+          responseCallback: this._openAlexCallback.bind(this),
+        },
+      },
+      {
         key: "crossref",
         name: "Crossref",
         useDoi: true,
         useArxiv: false,
         methods: {
-          urlBuilder: this._crossrefUrl,
-          responseCallback: this._crossrefCallback,
+          urlBuilder: this._crossrefUrl.bind(this),
+          responseCallback: this._crossrefCallback.bind(this),
         },
       },
       {
@@ -54,18 +64,8 @@ ZoteroCitationCounts = {
         useDoi: true,
         useArxiv: true,
         methods: {
-          urlBuilder: this._inspireUrl,
-          responseCallback: this._inspireCallback,
-        },
-      },
-      {
-        key: "openalex",
-        name: "OpenAlex",
-        useDoi: true,
-        useArxiv: false,
-        methods: {
-          urlBuilder: this._openAlexUrl,
-          responseCallback: this._openAlexCallback,
+          urlBuilder: this._inspireUrl.bind(this),
+          responseCallback: this._inspireCallback.bind(this),
         },
       },
       {
@@ -74,8 +74,8 @@ ZoteroCitationCounts = {
         useDoi: true,
         useArxiv: true,
         methods: {
-          urlBuilder: this._semanticScholarUrl,
-          responseCallback: this._semanticScholarCallback,
+          urlBuilder: this._semanticScholarUrl.bind(this),
+          responseCallback: this._semanticScholarCallback.bind(this),
         },
       },
       {
@@ -84,8 +84,8 @@ ZoteroCitationCounts = {
         useDoi: true,
         useArxiv: false,
         methods: {
-          urlBuilder: this._scopusUrl,
-          responseCallback: this._scopusCallback,
+          urlBuilder: this._scopusUrl.bind(this),
+          responseCallback: this._scopusCallback.bind(this),
         },
       },
     ];
@@ -99,6 +99,15 @@ ZoteroCitationCounts = {
       .filter((line) => /^Citations:|^\d+ citations/i.test(line));
 
     return extraFieldLines[0]?.match(/^\d+/) || "-";
+  },
+
+  getFWCI: function (item) {
+    const extraFieldLines = (item.getField("extra") || "")
+      .split("\n")
+      .filter((line) => /^FWCI:/i.test(line));
+
+    const match = extraFieldLines[0]?.match(/[\d\.]+/);
+    return match ? match[0] : "-";
   },
 
   getPref: function (pref) {
@@ -394,7 +403,8 @@ ZoteroCitationCounts = {
       pwItem.setError();
 
       let messageKey =
-        typeof error?.message === "string" && error.message.startsWith("citationcounts-")
+        typeof error?.message === "string" &&
+        error.message.startsWith("citationcounts-")
           ? error.message
           : "citationcounts-internal-error";
 
@@ -408,13 +418,16 @@ ZoteroCitationCounts = {
       }
 
       const fallbackMessage =
-        typeof error?.message === "string" && error.message && !error.message.startsWith("citationcounts-")
+        typeof error?.message === "string" &&
+        error.message &&
+        !error.message.startsWith("citationcounts-")
           ? error.message
           : await this.l10n.formatValue("citationcounts-internal-error", {
               api: api.name,
             });
 
-      const messageToShow = localizedMessage || fallbackMessage || "Unknown error";
+      const messageToShow =
+        localizedMessage || fallbackMessage || "Unknown error";
 
       this._log(`Citation count retrieval error: ${error?.stack || error}`);
 
@@ -440,23 +453,32 @@ ZoteroCitationCounts = {
    */
   _setCitationCount: function (item, source, count, fwci = null) {
     // Escape special regex characters in source
-    const escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = new RegExp(`^Citations \\(${escapedSource}\\):|^\\d+ citations \\(${escapedSource}\\)`, 'i');
-    const fwciPattern = new RegExp(`^FWCI \\(${escapedSource}\\):|^FWCI: \\d+\\.\\d+ \\(${escapedSource}\\)`, 'i');
+    const escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(
+      `^Citations \\(${escapedSource}\\):|^\\d+ citations \\(${escapedSource}\\)`,
+      "i"
+    );
+    const fwciPattern = new RegExp(
+      `^FWCI \\(${escapedSource}\\):|^FWCI: \\d+\\.\\d+ \\(${escapedSource}\\)`,
+      "i"
+    );
     const extraFieldLines = (item.getField("extra") || "")
       .split("\n")
       .filter((line) => !pattern.test(line) && !fwciPattern.test(line));
 
     const today = new Date().toISOString().split("T")[0];
     extraFieldLines.unshift(`${count} citations (${source}) [${today}]`);
-    
+
     // Add FWCI if available
     if (fwci !== null && !isNaN(fwci)) {
-      extraFieldLines.unshift(`FWCI: ${fwci.toFixed(2)} (${source}) [${today}]`);
+      extraFieldLines.unshift(
+        `FWCI: ${fwci.toFixed(2)} (${source}) [${today}]`
+      );
     }
 
     item.setField("extra", extraFieldLines.join("\n"));
     item.saveTx();
+    Zotero.Notifier.trigger("modify", "item", [item.id]);
   },
 
   /**
@@ -617,16 +639,21 @@ ZoteroCitationCounts = {
       throw new Error("citationcounts-internal-error");
     }
 
-    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count&mailto:magic.maji@gmail.com`;
+    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count,fwci&mailto:magic.maji@gmail.com`;
   },
 
   // The callback can be async if we want.
   _openAlexCallback: async function (response) {
-    count = response["cited_by_count"];
+    const count = response["cited_by_count"];
+    const fwci = response["fwci"];
 
     // throttle OpenAlex so we don't reach rate limit during batch operations.
     await new Promise((r) => setTimeout(r, 1000));
-    return count;
+
+    return {
+      count: count,
+      fwci: fwci
+    };
   },
 
   _crossrefUrl: function (id, type) {
@@ -683,7 +710,7 @@ ZoteroCitationCounts = {
   },
 
   _scopusCallback: function (response) {
-    // Extract citation count and FWCI from Scopus response
+    // Extract citation count from Scopus response
     const coredata = response["abstracts-retrieval-response"]?.["coredata"];
     if (!coredata) {
       throw new Error("citationcounts-progresswindow-error-no-citation-count");
@@ -694,11 +721,6 @@ ZoteroCitationCounts = {
       throw new Error("citationcounts-progresswindow-error-no-citation-count");
     }
 
-    const fwci = coredata["fwci"] ? parseFloat(coredata["fwci"]) : null;
-
-    return {
-      count: citationCount,
-      fwci: fwci
-    };
+    return citationCount;
   },
 };
