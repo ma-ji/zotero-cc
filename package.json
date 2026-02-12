@@ -1,7 +1,7 @@
 {
   "name": "zotero-cc",
   "type": "module",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Zotero 7 Citation Counts",
   "config": {
     "addonName": "Zotero 7 Citation Counts",
