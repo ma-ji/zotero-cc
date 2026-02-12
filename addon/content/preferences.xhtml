@@ -1,0 +1,28 @@
+<linkset>
+  <html:link rel="localization" href="__addonRef__-preferences.ftl" />
+</linkset>
+
+<vbox onload="ZoteroCitationCounts_Prefs.init()">
+  <groupbox>
+    <label>
+      <html:h2 data-l10n-id="preferences-pane-autoretrieve-title"></html:h2>
+    </label>
+    <radiogroup
+      id="citationcounts-preference-pane-autoretrieve-radiogroup"
+      preference="autoretrieve"
+    >
+      <!-- Radiobuttons are dynamically created by the script -->
+    </radiogroup>
+  </groupbox>
+  <groupbox>
+    <label>
+      <html:h2 data-l10n-id="preferences-pane-scopus-api-key-title"></html:h2>
+    </label>
+    <html:input
+      id="citationcounts-preference-pane-scopus-api-key"
+      preference="scopusApiKey"
+      type="text"
+      data-l10n-id="preferences-pane-scopus-api-key-input"
+    />
+  </groupbox>
+</vbox>

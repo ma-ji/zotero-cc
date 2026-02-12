@@ -8,29 +8,15 @@ on:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build XPI package
-        env:
-          VERSION: ${{ github.ref_name }}
-        run: bash bin/build
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: zotero-citation-counts-xpi
-          path: dist/*.xpi
-
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/*.xpi
-          generate_release_notes: true
-          fail_on_unmatched_files: true
+  create-release:
+    uses: zotero-plugin-dev/workflows/.github/workflows/release-plugin.yml@main
+    # You can customize any of the inputs here.
+    # If you omit an input, its default value will be used.
+    with:
+      build: "npm run build"
+      release: "npm run release"
+    secrets: inherit
