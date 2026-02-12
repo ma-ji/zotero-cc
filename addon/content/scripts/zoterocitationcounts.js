@@ -1,4 +1,6 @@
-ZoteroCitationCounts = {
+/* eslint-disable */
+
+var ZoteroCitationCounts = {
   _initialized: false,
 
   pluginID: null,
@@ -24,7 +26,7 @@ ZoteroCitationCounts = {
     this.pluginVersion = version;
     this.rootURI = rootURI;
 
-    this.l10n = new Localization(["citation-counts.ftl"]);
+    this.l10n = new Localization(["citationcounts-addon.ftl"]);
 
     /**
      * To add a new API:
@@ -98,7 +100,8 @@ ZoteroCitationCounts = {
       .split("\n")
       .filter((line) => /^Citations:|^\d+ citations/i.test(line));
 
-    return extraFieldLines[0]?.match(/^\d+/) || "-";
+    const match = extraFieldLines[0]?.match(/^\d+/);
+    return match ? match[0] : "-";
   },
 
   getFWCI: function (item) {
@@ -146,7 +149,7 @@ ZoteroCitationCounts = {
     elementID,
     elementAttributes,
     parentID,
-    eventListeners
+    eventListeners,
   ) {
     const element = document.createXULElement(elementType);
     element.id = elementID;
@@ -182,7 +185,7 @@ ZoteroCitationCounts = {
       "menu",
       "menu_Tools-citationcounts-menu",
       { "data-l10n-id": "citationcounts-menutools-autoretrieve-title" },
-      "menu_ToolsPopup"
+      "menu_ToolsPopup",
     );
 
     const menupopup = this._injectXULElement(
@@ -198,11 +201,11 @@ ZoteroCitationCounts = {
               .getElementById(`menu_Tools-citationcounts-menu-popup-${api.key}`)
               .setAttribute(
                 "checked",
-                Boolean(this.getPref("autoretrieve") === api.key)
+                Boolean(this.getPref("autoretrieve") === api.key),
               );
           });
         },
-      }
+      },
     );
 
     this.APIs.concat({ key: "none" }).forEach((api) => {
@@ -223,7 +226,7 @@ ZoteroCitationCounts = {
           type: "checkbox",
         },
         menupopup.id,
-        { command: () => this.setPref("autoretrieve", api.key) }
+        { command: () => this.setPref("autoretrieve", api.key) },
       );
     });
   },
@@ -240,7 +243,7 @@ ZoteroCitationCounts = {
         "data-l10n-id": "citationcounts-itemmenu-retrieve-title",
         class: "menu-iconic",
       },
-      "zotero-itemmenu"
+      "zotero-itemmenu",
     );
 
     const menupopup = this._injectXULElement(
@@ -248,7 +251,7 @@ ZoteroCitationCounts = {
       "menupopup",
       "zotero-itemmenu-citationcounts-menupopup",
       {},
-      menu.id
+      menu.id,
     );
 
     this.APIs.forEach((api) => {
@@ -265,9 +268,9 @@ ZoteroCitationCounts = {
           command: () =>
             this.updateItems(
               Zotero.getActiveZoteroPane().getSelectedItems(),
-              api
+              api,
             ),
-        }
+        },
       );
     });
   },
@@ -276,7 +279,7 @@ ZoteroCitationCounts = {
    * Inject plugin specific DOM elements in a DOM window.
    */
   addToWindow: function (window) {
-    window.MozXULElement.insertFTLIfNeeded("citation-counts.ftl");
+    window.MozXULElement.insertFTLIfNeeded("citationcounts-mainWindow.ftl");
 
     this._createToolsMenu(window.document);
     this._createItemMenu(window.document);
@@ -304,7 +307,7 @@ ZoteroCitationCounts = {
       document.getElementById(id)?.remove();
     }
 
-    document.querySelector('[href="citation-counts.ftl"]').remove();
+    document.querySelector('[href="citationcounts-mainWindow.ftl"]')?.remove();
   },
 
   /**
@@ -335,14 +338,14 @@ ZoteroCitationCounts = {
       await this.l10n.formatValue("citationcounts-progresswindow-headline", {
         api: api.name,
       }),
-      this.icon("toolbar-advanced-search")
+      this.icon("toolbar-advanced-search"),
     );
 
     const progressWindowItems = [];
     const itemTitles = items.map((item) => item.getField("title"));
     itemTitles.forEach((title) => {
       progressWindowItems.push(
-        new progressWindow.ItemProgress(this.icon("spinner-16px"), title)
+        new progressWindow.ItemProgress(this.icon("spinner-16px"), title),
       );
     });
 
@@ -365,13 +368,13 @@ ZoteroCitationCounts = {
     items,
     api,
     progressWindow,
-    progressWindowItems
+    progressWindowItems,
   ) {
     // Check if operation is done
     if (currentItemIndex >= items.length) {
       const headlineFinished = await this.l10n.formatValue(
         "citationcounts-progresswindow-finished-headline",
-        { api: api.name }
+        { api: api.name },
       );
       progressWindow.changeHeadline(headlineFinished);
       progressWindow.startCloseTimer(5000);
@@ -388,7 +391,7 @@ ZoteroCitationCounts = {
         api.useDoi,
         api.useArxiv,
         api.methods.urlBuilder,
-        api.methods.responseCallback
+        api.methods.responseCallback,
       );
 
       this._setCitationCount(item, source, count, fwci);
@@ -434,7 +437,7 @@ ZoteroCitationCounts = {
       new progressWindow.ItemProgress(
         this.icon("bullet_yellow"),
         messageToShow,
-        pwItem
+        pwItem,
       );
     }
 
@@ -443,7 +446,7 @@ ZoteroCitationCounts = {
       items,
       api,
       progressWindow,
-      progressWindowItems
+      progressWindowItems,
     );
   },
 
@@ -456,11 +459,11 @@ ZoteroCitationCounts = {
     const escapedSource = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const pattern = new RegExp(
       `^Citations \\(${escapedSource}\\):|^\\d+ citations \\(${escapedSource}\\)`,
-      "i"
+      "i",
     );
     const fwciPattern = new RegExp(
       `^FWCI \\(${escapedSource}\\):|^FWCI: \\d+\\.\\d+ \\(${escapedSource}\\)`,
-      "i"
+      "i",
     );
     const extraFieldLines = (item.getField("extra") || "")
       .split("\n")
@@ -472,7 +475,7 @@ ZoteroCitationCounts = {
     // Add FWCI if available
     if (fwci !== null && !isNaN(fwci)) {
       extraFieldLines.unshift(
-        `FWCI: ${fwci.toFixed(2)} (${source}) [${today}]`
+        `FWCI: ${fwci.toFixed(2)} (${source}) [${today}]`,
       );
     }
 
@@ -522,9 +525,9 @@ ZoteroCitationCounts = {
 
     try {
       const result = await callback(response);
-      
+
       // Handle both number and object returns
-      if (typeof result === 'object' && result !== null) {
+      if (typeof result === "object" && result !== null) {
         const count = parseInt(result.count);
         if (!(Number.isInteger(count) && count >= 0)) {
           throw new Error();
@@ -548,7 +551,7 @@ ZoteroCitationCounts = {
     useDoi,
     useArxiv,
     urlFunction,
-    requestCallback
+    requestCallback,
   ) {
     let errorMessage = "";
     let doiField,
@@ -560,11 +563,11 @@ ZoteroCitationCounts = {
 
         const result = await this._sendRequest(
           urlFunction(doiField, "doi"),
-          requestCallback
+          requestCallback,
         );
 
         // Handle both number and object results
-        if (typeof result === 'object' && result !== null) {
+        if (typeof result === "object" && result !== null) {
           return [result.count, `${apiName}/DOI`, result.fwci];
         } else {
           return [result, `${apiName}/DOI`, null];
@@ -589,11 +592,11 @@ ZoteroCitationCounts = {
 
         const result = await this._sendRequest(
           urlFunction(arxivField, "arxiv"),
-          requestCallback
+          requestCallback,
         );
 
         // Handle both number and object results
-        if (typeof result === 'object' && result !== null) {
+        if (typeof result === "object" && result !== null) {
           return [result.count, `${apiName}/arXiv`, result.fwci];
         } else {
           return [result, `${apiName}/arXiv`, null];
@@ -639,7 +642,7 @@ ZoteroCitationCounts = {
       throw new Error("citationcounts-internal-error");
     }
 
-    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count,fwci&mailto:magic.maji@gmail.com`;
+    return `https://api.openalex.org/works/https://doi.org/${normalizedDoi}?select=cited_by_count,fwci&mailto=magic.maji@gmail.com`;
   },
 
   // The callback can be async if we want.
@@ -652,7 +655,7 @@ ZoteroCitationCounts = {
 
     return {
       count: count,
-      fwci: fwci
+      fwci: fwci,
     };
   },
 
@@ -679,7 +682,7 @@ ZoteroCitationCounts = {
 
   // The callback can be async if we want.
   _semanticScholarCallback: async function (response) {
-    count = response["citationCount"];
+    const count = response["citationCount"];
 
     // throttle Semantic Scholar so we don't reach limit.
     await new Promise((r) => setTimeout(r, 3000));

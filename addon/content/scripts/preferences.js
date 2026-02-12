@@ -1,8 +1,14 @@
-ZoteroCitationCounts_Prefs = {
+/* eslint-disable */
+
+var ZoteroCitationCounts_Prefs = {
   /**
    * @TODO reference ZoteroCitationCounts.APIs directly.
    */
   APIs: [
+    {
+      key: "openalex",
+      name: "OpenAlex",
+    },
     {
       key: "crossref",
       name: "Crossref",
@@ -10,10 +16,6 @@ ZoteroCitationCounts_Prefs = {
     {
       key: "inspire",
       name: "INSPIRE-HEP",
-    },
-    {
-      key: "openalex",
-      name: "OpenAlex",
     },
     {
       key: "semanticscholar",
@@ -47,7 +49,7 @@ ZoteroCitationCounts_Prefs = {
           ...label,
           value: api.key,
         },
-        "citationcounts-preference-pane-autoretrieve-radiogroup"
+        "citationcounts-preference-pane-autoretrieve-radiogroup",
       );
     });
   },
@@ -61,7 +63,7 @@ ZoteroCitationCounts_Prefs = {
     elementID,
     elementAttributes,
     parentID,
-    eventListeners
+    eventListeners,
   ) {
     const element = document.createXULElement(elementType);
     element.id = elementID;

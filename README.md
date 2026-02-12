@@ -4,13 +4,13 @@
 
 The following table summarizes the data sources supported by the plugin, including which identifiers they can use for retrieval and what metrics they provide:
 
-| Source | Input Identifiers | Output Metrics | Notes |
-|--------|-------------------|----------------|-------|
-| **[OpenAlex](https://openalex.org)** | DOI | Citation Count, FWCI | **Recommended default** - Open catalog of global research |
-| [Crossref](https://www.crossref.org) | DOI | Citation Count | Primary DOI resolution service |
-| [INSPIRE-HEP](https://inspirehep.net) | DOI, arXiv | Citation Count | High-energy physics literature |
-| [Semantic Scholar](https://www.semanticscholar.org) | DOI, arXiv | Citation Count | AI-powered research discovery |
-| [Scopus](https://www.scopus.com) | DOI | Citation Count | Requires Elsevier API key |
+| Source                                              | Input Identifiers | Output Metrics       | Notes                                                     |
+| --------------------------------------------------- | ----------------- | -------------------- | --------------------------------------------------------- |
+| **[OpenAlex](https://openalex.org)**                | DOI               | Citation Count, FWCI | **Recommended default** - Open catalog of global research |
+| [Crossref](https://www.crossref.org)                | DOI               | Citation Count       | Primary DOI resolution service                            |
+| [INSPIRE-HEP](https://inspirehep.net)               | DOI, arXiv        | Citation Count       | High-energy physics literature                            |
+| [Semantic Scholar](https://www.semanticscholar.org) | DOI, arXiv        | Citation Count       | AI-powered research discovery                             |
+| [Scopus](https://www.scopus.com)                    | DOI               | Citation Count       | Requires Elsevier API key                                 |
 
 This is an add-on for [Zotero](https://www.zotero.org), a research source management tool. The add-on can auto-fetch citation counts for journal articles using various APIs, including [Crossref](https://www.crossref.org), [INSPIRE-HEP](https://inspirehep.net), [OpenAlex](https://openalex.org), [Semantic Scholar](https://www.semanticscholar.org), and [Scopus](https://www.scopus.com). [Google Scholar](https://scholar.google.com) is planned to be supported in future releases.
 
@@ -24,7 +24,7 @@ This is an add-on for [Zotero](https://www.zotero.org), a research source manage
 
 ## Installing
 
-- Download the add-on (the .xpi file) from the latest release: <https://github.com/FrLars21/ZoteroCitationCountsManager/releases>
+- Download the add-on (the .xpi file) from the latest release: <https://github.com/ma-ji/zotero-cc/releases>
 - To download the .xpi file, right click it and select 'Save link as'
 - Run Zotero (version 7.x)
 - Go to `Tools -> Add-ons`
@@ -46,11 +46,42 @@ To use the Scopus API, you need to configure your API key:
 
 When using Scopus, the plugin will retrieve citation counts. Values are stored in the item's "Extra" field.
 
+## Development
+
+This project now uses [`windingwind/zotero-plugin-template`](https://github.com/windingwind/zotero-plugin-template) and `zotero-plugin-scaffold`.
+
+### Setup
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Copy `.env.example` to `.env` and configure your local Zotero paths.
+
+### Commands
+
+- Start development mode with auto reload:
+  ```bash
+  npm start
+  ```
+- Build production artifacts:
+  ```bash
+  npm run build
+  ```
+- Run lint checks:
+  ```bash
+  npm run lint:check
+  ```
+- Run plugin tests:
+  ```bash
+  npm test
+  ```
+
 ## Acknowledgements
 
 This plugin is truly a community product. It is a refactored and enhanced version of [FrLars21/ZoteroCitationCountsManager](https://github.com/FrLars21/ZoteroCitationCountsManager) (as you can tell from the folk), which was built based on Erik Schnetter's [Zotero Citations Counts Manager](https://github.com/eschnett/zotero-citationcounts) for Zotero 7. Code for that extension was based on [Zotero DOI Manager](https://github.com/bwiernik/zotero-shortdoi), which is based in part on [Zotero Google Scholar Citations](https://github.com/beloglazov/zotero-scholar-citations) by Anton Beloglazov.
 
-Boilerplate for this plugin was based on Zotero's sample plugin for v7 [Make-It-Red](https://github.com/zotero/make-it-red).
+Boilerplate for this plugin is based on [zotero-plugin-template](https://github.com/windingwind/zotero-plugin-template), and earlier versions were based on Zotero's sample plugin for v7 [Make-It-Red](https://github.com/zotero/make-it-red).
 
 ## License
 
